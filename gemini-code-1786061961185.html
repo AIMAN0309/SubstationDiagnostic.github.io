@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TNB Substation Asset & Diagnostic Management System</title>
+  <!-- Google Font, Lucide Icons, Chart.js & html2pdf -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #0f172a;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --card-blur: blur(12px);
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+      --danger: #ef4444;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+      --radius: 10px;
+      --transition: all 0.2s ease;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(rgba(15, 23, 42, 0.88), rgba(15, 23, 42, 0.88)), 
+                  url('https://mnholdings.com.my/wp-content/uploads/2022/03/desginsubstation-936x1024.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: var(--text);
+      line-height: 1.5;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    /* Top Navigation Bar */
+    .top-nav {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      padding: 10px 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .top-nav-container {
+      max-width: 1700px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.15rem;
+      cursor: pointer;
+      letter-spacing: -0.01em;
+      transition: var(--transition);
+    }
+
+    .brand-logo:hover { opacity: 0.9; }
+
+    .brand-logo .logo-icon {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: #fff;
+      padding: 6px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.4);
+    }
+
+    .brand-logo span { color: #60a5fa; }
+
+    .nav-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+    .nav-pill-group {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 4px;
+      border-radius: 10px;
+      gap: 4px;
+      backdrop-filter: blur(8px);
+    }
+
+    .nav-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: transparent;
+      color: #94a3b8;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .nav-tab-btn i { width: 16px; height: 16px; transition: transform 0.2s ease, color 0.2s ease; color: #64748b; }
+    .nav-tab-btn:hover { color: #f1f5f9; background: rgba(255, 255, 255, 0.08); }
+    .nav-tab-btn:hover i { color: #93c5fd; transform: translateY(-1px); }
+    .nav-tab-btn.active {
+      background: #2563eb;
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    }
+    .nav-tab-btn.active i { color: #ffffff; }
+
+    .nav-divider { height: 24px; width: 1px; background: rgba(255, 255, 255, 0.15); }
+    .nav-utilities { display: flex; gap: 8px; align-items: center; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid transparent;
+      outline: none;
+    }
+
+    .btn i { width: 16px; height: 16px; }
+
+    .btn-secondary { 
+      background: rgba(255, 255, 255, 0.08); 
+      color: #e2e8f0; 
+      border-color: rgba(255, 255, 255, 0.15); 
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-secondary:hover { 
+      background: rgba(255, 255, 255, 0.18); 
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary { 
+      background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+      color: #ffffff; 
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-primary:hover { 
+      background: linear-gradient(135deg, #1d4ed8, #1e40af);
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .container { max-width: 1700px; margin: 0 auto; padding: 24px 16px; }
+    .page-view { display: none; }
+    .page-view.active { display: block; }
+
+    /* FRONT PAGE / LANDING PAGE HERO */
+    .hero-section { color: #fff; text-align: center; padding: 40px 20px 30px; max-width: 950px; margin: 0 auto; }
+
+    .owner-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #94a3b8;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+
+    .owner-tag span { color: #60a5fa; font-weight: 700; }
+    .hero-title { font-size: 2.6rem; font-weight: 900; line-height: 1.2; margin-bottom: 16px; }
+    .hero-subtitle { font-size: 1.1rem; color: #94a3b8; margin-bottom: 32px; }
+
+    .hero-stats-banner {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .hero-stat-box {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius);
+      padding: 16px;
+      text-align: center;
+    }
+
+    .hero-stat-box h3 { font-size: 0.78rem; text-transform: uppercase; color: #cbd5e1; margin-bottom: 4px; }
+    .hero-stat-box .num { font-size: 2rem; font-weight: 800; color: #fff; }
+
+    .hero-cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    .feature-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 40px;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: left;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: var(--shadow-md);
+    }
+
+    .feature-card h3 { font-size: 1rem; color: var(--primary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .feature-card p { font-size: 0.85rem; color: var(--text-muted); }
+
+    /* Filter & Search Bar */
+    .filter-card {
+      background: var(--card-bg);
+      backdrop-filter: var(--card-blur);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+    .filter-group label { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+
+    /* Monthly Picker & Panels */
+    .month-picker-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.95);
+      padding: 12px 20px;
+      border-radius: var(--radius) var(--radius) 0 0;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-bottom: none;
+    }
+
+    .month-selector-group { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 0.9rem; }
+
+    .month-select {
+      background: #ffffff;
+      color: var(--primary);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .panel-container {
+      background: var(--card-bg);
+      backdrop-filter: var(--card-blur);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: var(--shadow-md);
+      padding: 20px;
+    }
+
+    .month-panel { display: none; }
+    .month-panel.active { display: block; }
+
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .panel-header h2 { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
+
+    /* Tables */
+    .table-responsive { width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: #ffffff; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; }
+    th {
+      background: #f8fafc;
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-align: center;
+    }
+    td { padding: 12px 10px; border-bottom: 1px solid #e2e8f0; vertical-align: top; text-align: center; }
+
+    /* Inputs & Selects */
+    input[type="text"], input[type="number"], input[type="date"], select, textarea {
+      width: 100%;
+      padding: 6px 10px;
+      font-size: 0.82rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background-color: #fff;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+    textarea { resize: vertical; min-height: 48px; }
+
+    /* DIAGNOSTIC CARD GRID */
+    .diag-cards-wrapper { display: flex; flex-direction: column; gap: 12px; text-align: left; padding: 2px; }
+    .diag-empty-state { background: #f8fafc; border: 1px dashed var(--border); border-radius: 8px; padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.8rem; }
+    .diag-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 10px 12px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+    .diag-card:hover { border-color: #cbd5e1; border-left-color: var(--accent-hover); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .diag-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f1f5f9; }
+    .diag-card-title { font-size: 0.85rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 6px; }
+    .diag-card-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+    .metric-field { display: flex; flex-direction: column; gap: 4px; }
+    .metric-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); display: flex; justify-content: space-between; }
+    .metric-control-group { display: flex; gap: 4px; }
+    .metric-control-group select { flex: 1.1; padding: 4px 6px; font-size: 0.78rem; }
+    .metric-control-group input { flex: 0.9; padding: 4px 6px; font-size: 0.78rem; font-weight: 600; }
+
+    /* Status Badges */
+    .status-badge { display: inline-block; padding: 3px 8px; border-radius: 5px; font-weight: 700; font-size: 0.72rem; text-align: center; letter-spacing: 0.02em; }
+    .status-normal { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+    .status-warning { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .status-danger { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+    /* Workorder Badges */
+    .wo-open { background: #fee2e2; color: #991b1b; }
+    .wo-scheduled { background: #fef3c7; color: #92400e; }
+    .wo-completed { background: #d1fae5; color: #065f46; }
+
+    /* Details Accordion */
+    .detail-row { display: none; background: #f8fafc; }
+    .detail-row.open { display: table-row; }
+    .detail-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; padding: 14px; text-align: left; }
+    .detail-block label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
+
+    .btn-expand { background: #f1f5f9; border: 1px solid var(--border); color: var(--text); padding: 6px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
+    .btn-expand:hover { background: #e2e8f0; }
+
+    /* Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
+    .stat-card { background: white; padding: 14px 18px; border-radius: 8px; border: 1px solid var(--border); }
+    .stat-card h3 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+    .stat-card .value { font-size: 1.8rem; font-weight: 800; margin-top: 2px; }
+
+    /* Multi-select Dropdown */
+    .multi-select-dropdown { position: relative; width: 100%; text-align: left; }
+    .multi-select-dropdown summary {
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.8rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      list-style: none;
+    }
+
+    .multi-select-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 100;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: var(--shadow-md);
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 6px;
+      min-width: 180px;
+    }
+
+    .multi-select-option { display: flex; align-items: center; gap: 6px; padding: 4px 6px; font-size: 0.8rem; cursor: pointer; }
+    .multi-select-option:hover { background: #f1f5f9; }
+
+    .tag-container { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .item-tag { background: #e2e8f0; color: #1e293b; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+
+    .btn-success { background: var(--success); color: white; }
+    .btn-danger { background: #fee2e2; color: var(--danger); border-color: #fca5a5; }
+
+    #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { background: #0f172a; color: #fff; padding: 10px 16px; border-radius: 6px; font-size: 0.82rem; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .toast-undo-btn { background: var(--accent); color: white; border: none; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); z-index: 10000; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal-card { background: #ffffff; padding: 20px; border-radius: var(--radius); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+
+    /* PDF Report Template */
+    #pdf-report-template { display: none; background: white; padding: 30px; color: #0f172a; font-family: 'Inter', sans-serif; }
+    #pdf-report-template h1 { font-size: 1.8rem; color: #2563eb; margin-bottom: 4px; }
+    #pdf-report-template table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.75rem; }
+    #pdf-report-template th, #pdf-report-template td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
+    #pdf-report-template th { background: #f1f5f9; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAVIGATION BAR -->
+  <nav class="top-nav">
+    <div class="top-nav-container">
+      <div class="brand-logo" onclick="switchPageView('front-page')">
+        <div class="logo-icon"><i data-lucide="zap"></i></div>
+        TNB <span>Diagnostic Portal</span>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Navigation Tabs -->
+        <div class="nav-pill-group">
+          <button class="nav-tab-btn active" id="btn-front-page" onclick="switchPageView('front-page')">
+            <i data-lucide="home"></i> Home
+          </button>
+          <button class="nav-tab-btn" id="btn-log-page" onclick="switchPageView('log-page')">
+            <i data-lucide="clipboard-list"></i> Monthly Logs
+          </button>
+          <button class="nav-tab-btn" id="btn-condition-page" onclick="switchPageView('condition-page')">
+            <i data-lucide="bar-chart-3"></i> Analytics
+          </button>
+          <button class="nav-tab-btn" id="btn-tasks-page" onclick="switchPageView('tasks-page')">
+            <i data-lucide="alert-triangle"></i> Action Tracker
+          </button>
+        </div>
+
+        <div class="nav-divider"></div>
+
+        <!-- Utilities & Backup -->
+        <div class="nav-utilities">
+          <button class="btn btn-secondary" onclick="openRegionModal()"><i data-lucide="map-pin"></i> Regions</button>
+          <button class="btn btn-secondary" onclick="openEngineerModal()"><i data-lucide="users"></i> Engineers</button>
+          <button class="btn btn-secondary" onclick="exportBackupJSON()"><i data-lucide="database"></i> Backup</button>
+          <button class="btn btn-secondary" onclick="importBackupJSON()"><i data-lucide="upload"></i> Restore</button>
+          <input type="file" id="jsonInputFile" accept=".json" style="display:none;" onchange="handleJSONImport(this)">
+          <button class="btn btn-primary" onclick="exportAllToCSV()"><i data-lucide="download"></i> Export CSV</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- FRONT PAGE / LANDING PAGE VIEW -->
+    <div id="front-page" class="page-view active">
+      <div class="hero-section">
+        <div class="owner-tag">
+          <i data-lucide="user-check" style="width:14px; height:14px; color:#60a5fa;"></i> Maintained by <span>ManKapak</span>
+        </div>
+
+        <h1 class="hero-title">Substation Condition & Asset Diagnostic Portal</h1>
+        <p class="hero-subtitle">Online asset health monitoring for Thermal IR, Ultrasonic PD, and TEV testing across regional TNB substations.</p>
+
+        <div class="hero-stats-banner">
+          <div class="hero-stat-box">
+            <h3>Substations Tracked</h3>
+            <div class="num" id="hero-total-substations">0</div>
+          </div>
+          <div class="hero-stat-box">
+            <h3>Equipment Tested</h3>
+            <div class="num" id="hero-total-tests">0</div>
+          </div>
+          <div class="hero-stat-box">
+            <h3>Critical Faults</h3>
+            <div class="num" id="hero-critical-faults" style="color: #ef4444;">0</div>
+          </div>
+          <div class="hero-stat-box">
+            <h3>Pending Tasks</h3>
+            <div class="num" id="hero-pending-tasks" style="color: #f59e0b;">0</div>
+          </div>
+        </div>
+
+        <div class="hero-cta-group">
+          <button class="btn btn-primary" style="padding:12px 24px; font-size:1rem;" onclick="switchPageView('log-page')">Open Diagnostic Logs</button>
+          <button class="btn btn-secondary" style="padding:12px 24px; font-size:1rem;" onclick="switchPageView('tasks-page')">View Action Tracker</button>
+          <button class="btn btn-secondary" style="padding:12px 24px; font-size:1rem;" onclick="generatePDFReport()"><i data-lucide="file-text"></i> PDF Exec Summary</button>
+        </div>
+
+        <div class="feature-cards-grid">
+          <div class="feature-card">
+            <h3><i data-lucide="search" style="color:#2563eb;"></i> Live Search & Multi-Filters</h3>
+            <p>Locate target assets by customizable region, severity level, contractor, or specific keyword across monthly inspection archives.</p>
+          </div>
+          <div class="feature-card">
+            <h3><i data-lucide="line-chart" style="color:#2563eb;"></i> Asset Trend Analysis</h3>
+            <p>Track historical ultrasonic dBµV, TEV dBmV, and thermal trends to catch degradation patterns before hard failure.</p>
+          </div>
+          <div class="feature-card">
+            <h3><i data-lucide="alert-circle" style="color:#2563eb;"></i> Action Tracker & Follow-Ups</h3>
+            <p>Auto-creates flagged workorders with due dates for any equipment needing corrective repairs or re-inspection.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MONTHLY LOG ENTRY PAGE -->
+    <div id="log-page" class="page-view">
+      <!-- Global Search & District Filter Bar -->
+      <div class="filter-card">
+        <div class="filter-group">
+          <label>Global Search</label>
+          <input type="text" id="globalSearchInput" placeholder="Search substation, contractor, findings..." oninput="applyFiltersAndSearch()">
+        </div>
+        <div class="filter-group">
+          <label>District / Region</label>
+          <select id="districtFilterSelect" onchange="applyFiltersAndSearch()"></select>
+        </div>
+        <div class="filter-group">
+          <label>Severity Filter</label>
+          <select id="severityFilterSelect" onchange="applyFiltersAndSearch()">
+            <option value="ALL">All Severities</option>
+            <option value="Pass (Normal)">Pass (Normal)</option>
+            <option value="Needs Inspection">Needs Inspection</option>
+            <option value="Critical Fault">Critical Fault</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="month-picker-bar">
+        <div class="month-selector-group">
+          <label for="monthSelect">Month Log:</label>
+          <select id="monthSelect" class="month-select" onchange="switchMonth(this.value)"></select>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary" onclick="navigateMonth(-1)"><i data-lucide="chevron-left"></i> Prev</button>
+          <button class="btn btn-secondary" onclick="navigateMonth(1)">Next <i data-lucide="chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="panel-container" id="panelsContainer"></div>
+    </div>
+
+    <!-- SUBSTATION CONDITION OVERVIEW PAGE -->
+    <div id="condition-page" class="page-view">
+      <div class="panel-container" style="border-radius: var(--radius);">
+        <div class="panel-header">
+          <h2>Substation Condition Overview</h2>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card" style="border-left: 4px solid var(--success);">
+            <h3>Pass (Normal)</h3>
+            <div class="value" id="count-normal" style="color: #059669;">0</div>
+          </div>
+          <div class="stat-card" style="border-left: 4px solid var(--warning);">
+            <h3>Needs Inspection</h3>
+            <div class="value" id="count-warning" style="color: #d97706;">0</div>
+          </div>
+          <div class="stat-card" style="border-left: 4px solid var(--danger);">
+            <h3>Critical Fault</h3>
+            <div class="value" id="count-danger" style="color: #dc2626;">0</div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table id="condition-overview-table">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>District / Region</th>
+                <th>Substation</th>
+                <th>Equipment Target</th>
+                <th>Overall Status</th>
+                <th>Temp IR (°C)</th>
+                <th>Ultrasonic (dBµV)</th>
+                <th>TEV (dBmV)</th>
+                <th>Action / Trend</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION TRACKER & WORK ORDERS PAGE -->
+    <div id="tasks-page" class="page-view">
+      <div class="panel-container" style="border-radius: var(--radius);">
+        <div class="panel-header">
+          <h2>High-Priority Action Tracker & Workorders</h2>
+        </div>
+        <div class="table-responsive">
+          <table id="tasks-table">
+            <thead>
+              <tr>
+                <th>Target Asset</th>
+                <th>District / Region</th>
+                <th>Month Logged</th>
+                <th>Fault Level</th>
+                <th>Due Date (14 Days)</th>
+                <th>Workorder Lifecycle Status</th>
+                <th>Assigned Engineers</th>
+                <th>Audit Timestamp</th>
+                <th style="width: 50px;">Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="toast-container"></div>
+
+  <!-- Region / District Manager Modal -->
+  <div class="modal-overlay" id="regionModal">
+    <div class="modal-card">
+      <h2 style="margin-bottom: 12px; font-size: 1.1rem;">Manage Regions / Districts</h2>
+      <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <input type="text" id="newRegionName" placeholder="Region / District Name">
+        <button class="btn btn-success" onclick="addRegion()"><i data-lucide="plus"></i> Add</button>
+      </div>
+      <div id="regionListContainer" style="max-height: 180px; overflow-y: auto; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 6px;"></div>
+      <div style="text-align: right;">
+        <button class="btn btn-secondary" onclick="closeRegionModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Engineer Manager Modal -->
+  <div class="modal-overlay" id="engineerModal">
+    <div class="modal-card">
+      <h2 style="margin-bottom: 12px; font-size: 1.1rem;">Manage Engineers</h2>
+      <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <input type="text" id="newEngineerName" placeholder="Engineer Name">
+        <button class="btn btn-success" onclick="addEngineer()"><i data-lucide="plus"></i> Add</button>
+      </div>
+      <div id="engineerListContainer" style="max-height: 180px; overflow-y: auto; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 6px;"></div>
+      <div style="text-align: right;">
+        <button class="btn btn-secondary" onclick="closeEngineerModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Asset Trend Chart Modal -->
+  <div class="modal-overlay" id="trendModal">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 id="trendChartTitle">Asset Diagnostic Trend</h3>
+        <button class="btn btn-secondary" onclick="closeTrendModal()">✕ Close</button>
+      </div>
+      <canvas id="assetTrendChart" style="max-height:300px;"></canvas>
+    </div>
+  </div>
+
+  <!-- Photo Viewer Modal -->
+  <div class="modal-overlay" id="imageModal" onclick="closeModal()">
+    <img id="modalImage" src="" style="max-width: 90%; max-height: 80vh; border-radius: 8px;">
+  </div>
+
+  <!-- Hidden Printable PDF Container -->
+  <div id="pdf-report-template">
+    <h1>TNB Substation Health Summary Report</h1>
+    <p style="font-size: 0.8rem; color: #64748b;" id="pdf-generated-date"></p>
+    <hr style="margin: 10px 0;">
+    <h3>Key Executive Metrics</h3>
+    <div style="display: flex; gap: 20px; margin: 10px 0;" id="pdf-metrics-container"></div>
+    <h3>Substation Fault Register</h3>
+    <table id="pdf-fault-table">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Substation</th>
+          <th>Equipment Target</th>
+          <th>Severity</th>
+          <th>Diagnostic Metrics</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const EQUIPMENT_OPTIONS = ["Transformer", "Switchgear", "Bushing", "Cable Joint", "Circuit Breaker", "CT/PT", "Other Equipment"];
+    const STORAGE_KEY = 'TNB_DIAGNOSTIC_DATA_WEB_V18';
+    const ENGINE_KEY = 'TNB_ENGINEER_LIST_V4';
+    const REGION_KEY = 'TNB_REGION_LIST_V1';
+    const TASK_KEY = 'TNB_WORKORDERS_V1';
+
+    let appState = {};
+    let workOrders = {};
+    let engineerList = ["Ahmad (TNB)", "Siti (TNB)", "Razak (TNB)"];
+    let regionList = ["KL South", "Shah Alam", "Ipoh North", "Johor Bahru"];
+    let lastDeletedRowData = null;
+    let lastDeletedTaskData = null;
+    let trendChartInstance = null;
+
+    function showToast(msg, onUndo = null) {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      let toastHTML = `<span>${msg}</span>`;
+      if (onUndo) toastHTML += `<button class="toast-undo-btn">Undo ↩</button>`;
+      toast.innerHTML = toastHTML;
+      if (onUndo) {
+        toast.querySelector('.toast-undo-btn').addEventListener('click', () => {
+          onUndo();
+          toast.remove();
+        });
+      }
+      container.appendChild(toast);
+      setTimeout(() => { if (toast.parentNode) toast.remove(); }, 5000);
+    }
+
+    /* Region / District Customization */
+    function loadRegions() {
+      const saved = localStorage.getItem(REGION_KEY);
+      if (saved) { try { regionList = JSON.parse(saved); } catch (e) {} }
+    }
+
+    function saveRegions() {
+      localStorage.setItem(REGION_KEY, JSON.stringify(regionList));
+      refreshAllRegionDropdowns();
+    }
+
+    function renderRegionManager() {
+      const container = document.getElementById("regionListContainer");
+      container.innerHTML = "";
+      regionList.forEach((reg, idx) => {
+        const item = document.createElement("div");
+        item.style.cssText = "display:flex; justify-content:space-between; padding:6px 10px; border-bottom:1px solid #eee;";
+        item.innerHTML = `<span>${reg}</span><button class="btn btn-danger" style="padding:2px 6px; font-size:0.7rem;" onclick="removeRegion(${idx})">Delete</button>`;
+        container.appendChild(item);
+      });
+    }
+
+    function addRegion() {
+      const input = document.getElementById("newRegionName");
+      if (input.value.trim() && !regionList.includes(input.value.trim())) {
+        regionList.push(input.value.trim());
+        input.value = "";
+        saveRegions();
+        renderRegionManager();
+      }
+    }
+
+    function removeRegion(idx) {
+      regionList.splice(idx, 1);
+      saveRegions();
+      renderRegionManager();
+    }
+
+    function openRegionModal() { renderRegionManager(); document.getElementById("regionModal").classList.add("active"); }
+    function closeRegionModal() { document.getElementById("regionModal").classList.remove("active"); }
+
+    function refreshAllRegionDropdowns() {
+      // Refresh top Filter dropdown
+      const filterSelect = document.getElementById("districtFilterSelect");
+      const currentFilterVal = filterSelect.value;
+      filterSelect.innerHTML = `<option value="ALL">All Districts / Regions</option>` + 
+        regionList.map(r => `<option value="${r}">${r}</option>`).join('');
+      if (regionList.includes(currentFilterVal)) filterSelect.value = currentFilterVal;
+
+      // Refresh table select options
+      document.querySelectorAll('.col-district').forEach(select => {
+        const currentVal = select.value;
+        select.innerHTML = regionList.map(r => `<option value="${r}" ${r === currentVal ? 'selected' : ''}>${r}</option>`).join('');
+        if (!regionList.includes(currentVal) && regionList.length > 0) {
+          select.value = regionList[0];
+        }
+      });
+    }
+
+    /* Engineer Customization */
+    function loadEngineers() {
+      const saved = localStorage.getItem(ENGINE_KEY);
+      if (saved) { try { engineerList = JSON.parse(saved); } catch (e) {} }
+    }
+
+    function saveEngineers() {
+      localStorage.setItem(ENGINE_KEY, JSON.stringify(engineerList));
+      refreshAllEngineerDropdowns();
+    }
+
+    function renderEngineerManager() {
+      const container = document.getElementById("engineerListContainer");
+      container.innerHTML = "";
+      engineerList.forEach((eng, idx) => {
+        const item = document.createElement("div");
+        item.style.cssText = "display:flex; justify-content:space-between; padding:6px 10px; border-bottom:1px solid #eee;";
+        item.innerHTML = `<span>${eng}</span><button class="btn btn-danger" style="padding:2px 6px; font-size:0.7rem;" onclick="removeEngineer(${idx})">Delete</button>`;
+        container.appendChild(item);
+      });
+    }
+
+    function addEngineer() {
+      const input = document.getElementById("newEngineerName");
+      if (input.value.trim()) {
+        engineerList.push(input.value.trim());
+        input.value = "";
+        saveEngineers();
+        renderEngineerManager();
+      }
+    }
+
+    function removeEngineer(idx) {
+      engineerList.splice(idx, 1);
+      saveEngineers();
+      renderEngineerManager();
+    }
+
+    function openEngineerModal() { renderEngineerManager(); document.getElementById("engineerModal").classList.add("active"); }
+    function closeEngineerModal() { document.getElementById("engineerModal").classList.remove("active"); }
+
+    function getSelectedValues(row, selectorClass) {
+      return Array.from(row.querySelectorAll(`${selectorClass}:checked`)).map(cb => cb.value);
+    }
+
+    function renderEquipmentMultiSelectHTML(selectedArray = []) {
+      let optionsHTML = EQUIPMENT_OPTIONS.map(eq => {
+        const isChecked = selectedArray.includes(eq) ? 'checked' : '';
+        return `<label class="multi-select-option"><input type="checkbox" class="eq-checkbox" value="${eq}" ${isChecked} onchange="onEquipmentSelectionChange(this.closest('tr'))"><span>${eq}</span></label>`;
+      }).join('');
+
+      return `
+        <details class="multi-select-dropdown">
+          <summary><span class="eq-summary-text">${selectedArray.length ? selectedArray.length + ' Target(s) Configured' : 'Select Equipment'}</span></summary>
+          <div class="multi-select-menu">${optionsHTML}</div>
+        </details>
+      `;
+    }
+
+    function onEquipmentSelectionChange(mainRow) {
+      const selectedEqs = getSelectedValues(mainRow, '.eq-checkbox');
+      mainRow.querySelector('.eq-summary-text').innerText = selectedEqs.length ? `${selectedEqs.length} Target(s) Configured` : "Select Equipment";
+      const existingData = extractMainRowData(mainRow);
+      renderEquipmentDiagnosticCards(mainRow, selectedEqs, existingData.equipmentTests || {});
+      evaluateOverallSubstationStatus(mainRow);
+    }
+
+    function renderEquipmentDiagnosticCards(mainRow, selectedEqs, existingTests = {}) {
+      const container = mainRow.querySelector('.equipment-tests-container');
+      if (!selectedEqs.length) {
+        container.innerHTML = `
+          <div class="diag-empty-state">
+            ⚠️ <strong>No Equipment Selected</strong><br>Use dropdown to configure target assets.
+          </div>
+        `;
+        return;
+      }
+
+      let cardsHTML = selectedEqs.map(eq => {
+        const eqData = existingTests[eq] || {};
+        const tempMethod = eqData.tempMethod || 'Indirect';
+        const ultraMethod = eqData.ultraMethod || 'Required';
+        const tevMethod = eqData.tevMethod || 'Required';
+
+        return `
+          <div class="diag-card eq-test-row" data-eq-name="${eq}">
+            <div class="diag-card-header">
+              <div class="diag-card-title">
+                <span>⚙️</span> <strong>${eq}</strong>
+              </div>
+              <span class="status-badge eq-status-badge status-normal">Pass (Normal)</span>
+            </div>
+
+            <div class="diag-card-metrics">
+              <div class="metric-field">
+                <span class="metric-label"><span>Thermal IR</span></span>
+                <div class="metric-control-group">
+                  <select class="eq-temp-method" onchange="toggleTestField(this); evaluateOverallSubstationStatus(this.closest('tr.main-log-row'));">
+                    <option value="Indirect" ${tempMethod === 'Indirect' ? 'selected' : ''}>Indirect</option>
+                    <option value="Direct" ${tempMethod === 'Direct' ? 'selected' : ''}>Direct</option>
+                    <option value="NA" ${tempMethod === 'NA' ? 'selected' : ''}>N/A</option>
+                  </select>
+                  <input type="number" step="0.1" class="eq-temp-val" placeholder="°C" value="${eqData.tempVal || ''}" ${tempMethod === 'NA' ? 'disabled' : ''} oninput="evaluateOverallSubstationStatus(this.closest('tr.main-log-row'))">
+                </div>
+              </div>
+
+              <div class="metric-field">
+                <span class="metric-label"><span>Ultrasonic</span></span>
+                <div class="metric-control-group">
+                  <select class="eq-ultra-method" onchange="toggleTestField(this); evaluateOverallSubstationStatus(this.closest('tr.main-log-row'));">
+                    <option value="Required" ${ultraMethod === 'Required' ? 'selected' : ''}>Active</option>
+                    <option value="NA" ${ultraMethod === 'NA' ? 'selected' : ''}>N/A</option>
+                  </select>
+                  <input type="number" step="0.1" class="eq-ultrasound" placeholder="dBµV" value="${eqData.ultrasound || ''}" ${ultraMethod === 'NA' ? 'disabled' : ''} oninput="evaluateOverallSubstationStatus(this.closest('tr.main-log-row'))">
+                </div>
+              </div>
+
+              <div class="metric-field">
+                <span class="metric-label"><span>TEV</span></span>
+                <div class="metric-control-group">
+                  <select class="eq-tev-method" onchange="toggleTestField(this); evaluateOverallSubstationStatus(this.closest('tr.main-log-row'));">
+                    <option value="Required" ${tevMethod === 'Required' ? 'selected' : ''}>Active</option>
+                    <option value="NA" ${tevMethod === 'NA' ? 'selected' : ''}>N/A</option>
+                  </select>
+                  <input type="number" step="0.1" class="eq-tev" placeholder="dBmV" value="${eqData.tev || ''}" ${tevMethod === 'NA' ? 'disabled' : ''} oninput="evaluateOverallSubstationStatus(this.closest('tr.main-log-row'))">
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `<div class="diag-cards-wrapper">${cardsHTML}</div>`;
+    }
+
+    function toggleTestField(selectEl) {
+      const input = selectEl.closest('.metric-control-group').querySelector('input');
+      if (selectEl.value === 'NA') {
+        input.disabled = true;
+        input.value = '';
+      } else {
+        input.disabled = false;
+      }
+    }
+
+    function evaluateOverallSubstationStatus(mainRow) {
+      const eqTestRows = mainRow.querySelectorAll('.eq-test-row');
+      let overallStatus = 'Pass (Normal)';
+
+      eqTestRows.forEach(eqRow => {
+        const tempMethod = eqRow.querySelector('.eq-temp-method').value;
+        const tempVal = parseFloat(eqRow.querySelector('.eq-temp-val').value);
+        const ultraMethod = eqRow.querySelector('.eq-ultra-method').value;
+        const ultrasound = parseFloat(eqRow.querySelector('.eq-ultrasound').value);
+        const tevMethod = eqRow.querySelector('.eq-tev-method').value;
+        const tev = parseFloat(eqRow.querySelector('.eq-tev').value);
+        const badge = eqRow.querySelector('.eq-status-badge');
+
+        let eqStatus = 'Pass (Normal)';
+
+        if (tempMethod !== 'NA' && !isNaN(tempVal)) {
+          if (tempMethod === 'Indirect' && tempVal >= 1) eqStatus = 'Needs Inspection';
+          if (tempMethod === 'Direct' && tempVal >= 55) eqStatus = 'Needs Inspection';
+        }
+
+        if (ultraMethod !== 'NA' && !isNaN(ultrasound)) {
+          if (ultrasound >= 15) eqStatus = 'Critical Fault';
+          else if (ultrasound >= 6 && eqStatus !== 'Critical Fault') eqStatus = 'Needs Inspection';
+        }
+
+        if (tevMethod !== 'NA' && !isNaN(tev)) {
+          if (tev >= 30) eqStatus = 'Critical Fault';
+          else if (tev >= 20 && eqStatus !== 'Critical Fault') eqStatus = 'Needs Inspection';
+        }
+
+        badge.className = 'status-badge eq-status-badge ' + (eqStatus === 'Pass (Normal)' ? 'status-normal' : eqStatus === 'Needs Inspection' ? 'status-warning' : 'status-danger');
+        badge.innerText = eqStatus;
+
+        if (eqStatus === 'Critical Fault') overallStatus = 'Critical Fault';
+        else if (eqStatus === 'Needs Inspection' && overallStatus !== 'Critical Fault') overallStatus = 'Needs Inspection';
+      });
+
+      const overallBadge = mainRow.querySelector('.col-overall-badge');
+      overallBadge.className = 'status-badge col-overall-badge ' + (overallStatus === 'Pass (Normal)' ? 'status-normal' : overallStatus === 'Needs Inspection' ? 'status-warning' : 'status-danger');
+      overallBadge.innerText = overallStatus;
+
+      saveState();
+      syncWorkOrders();
+      updateHeroStats();
+    }
+
+    function updateEngineerSelection(container) {
+      const detailRow = container.closest('.detail-row');
+      const selected = Array.from(detailRow.querySelectorAll('.eng-checkbox:checked')).map(cb => cb.value);
+      detailRow.querySelector('.summary-text').innerText = selected.length ? `${selected.length} Selected` : "Select Engineers";
+      detailRow.querySelector('.engineer-tags').innerHTML = selected.map(e => `<span class="item-tag">${e}</span>`).join('');
+      saveState();
+    }
+
+    function refreshAllEngineerDropdowns() {
+      document.querySelectorAll('.detail-row').forEach(detailRow => {
+        const selected = Array.from(detailRow.querySelectorAll('.eng-checkbox:checked')).map(cb => cb.value);
+        detailRow.querySelector('.col-engineer-container').innerHTML = renderEngineerMultiSelectHTML(selected);
+      });
+    }
+
+    function renderEngineerMultiSelectHTML(selectedArray = []) {
+      let optionsHTML = engineerList.map(eng => {
+        const isChecked = selectedArray.includes(eng) ? 'checked' : '';
+        return `<label class="multi-select-option"><input type="checkbox" class="eng-checkbox" value="${eng}" ${isChecked} onchange="updateEngineerSelection(this.closest('.multi-select-dropdown'))"><span>${eng}</span></label>`;
+      }).join('');
+
+      let tagsHTML = selectedArray.map(e => `<span class="item-tag">${e}</span>`).join('');
+
+      return `
+        <details class="multi-select-dropdown">
+          <summary><span class="summary-text">${selectedArray.length ? selectedArray.length + ' Selected' : 'Select Engineers'}</span></summary>
+          <div class="multi-select-menu">${optionsHTML || '<div style="font-size:0.75rem; color:#888;">No engineers</div>'}</div>
+          <div class="tag-container engineer-tags">${tagsHTML}</div>
+        </details>
+      `;
+    }
+
+    function renderRegionSelectHTML(selectedRegion) {
+      const defaultVal = selectedRegion || (regionList.length > 0 ? regionList[0] : '');
+      return `<select class="col-district">` + 
+        regionList.map(r => `<option value="${r}" ${r === defaultVal ? 'selected' : ''}>${r}</option>`).join('') +
+        `</select>`;
+    }
+
+    function switchPageView(pageId) {
+      document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      const activeBtn = document.getElementById(`btn-${pageId}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      if (pageId === 'front-page') updateHeroStats();
+      if (pageId === 'condition-page') renderConditionOverview();
+      if (pageId === 'tasks-page') renderTasksOverview();
+    }
+
+    function updateHeroStats() {
+      const state = loadState() || {};
+      let totalSubstations = 0;
+      let totalTests = 0;
+      let criticalFaults = 0;
+
+      MONTHS.forEach(m => {
+        (state[m] || []).forEach(item => {
+          if (item.substation) {
+            totalSubstations++;
+            const tests = Object.keys(item.equipmentTests || {});
+            totalTests += tests.length;
+            tests.forEach(eq => {
+              if (item.equipmentTests[eq].status === 'Critical Fault') criticalFaults++;
+            });
+          }
+        });
+      });
+
+      const pendingCount = Object.values(workOrders).filter(w => w.status !== 'Completed').length;
+
+      document.getElementById("hero-total-substations").innerText = totalSubstations;
+      document.getElementById("hero-total-tests").innerText = totalTests;
+      document.getElementById("hero-critical-faults").innerText = criticalFaults;
+      document.getElementById("hero-pending-tasks").innerText = pendingCount;
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : null;
+    }
+
+    function loadWorkOrders() {
+      const saved = localStorage.getItem(TASK_KEY);
+      if (saved) { try { workOrders = JSON.parse(saved); } catch (e) {} }
+    }
+
+    function saveWorkOrders() {
+      localStorage.setItem(TASK_KEY, JSON.stringify(workOrders));
+    }
+
+    function syncWorkOrders() {
+      const state = loadState() || {};
+      MONTHS.forEach(month => {
+        (state[month] || []).forEach(item => {
+          if (!item.substation) return;
+          Object.keys(item.equipmentTests || {}).forEach(eq => {
+            const eqData = item.equipmentTests[eq];
+            const key = `${item.substation}_${eq}`;
+            if (eqData.status === 'Needs Inspection' || eqData.status === 'Critical Fault') {
+              if (!workOrders[key]) {
+                const now = new Date();
+                const dueDate = new Date(now.setDate(now.getDate() + 14)).toISOString().split('T')[0];
+                workOrders[key] = {
+                  substation: item.substation,
+                  district: item.district || (regionList[0] || 'Default Region'),
+                  equipment: eq,
+                  month: month,
+                  statusLevel: eqData.status,
+                  dueDate: dueDate,
+                  status: 'Open',
+                  engineers: item.engineers || [],
+                  updatedAt: new Date().toLocaleString()
+                };
+              } else {
+                workOrders[key].district = item.district;
+                workOrders[key].statusLevel = eqData.status;
+                workOrders[key].engineers = item.engineers || [];
+              }
+            }
+          });
+        });
+      });
+      saveWorkOrders();
+    }
+
+    function extractMainRowData(mainRow) {
+      const detailRow = mainRow.nextElementSibling;
+      const equipmentTests = {};
+
+      mainRow.querySelectorAll('.eq-test-row').forEach(eqRow => {
+        const eqName = eqRow.dataset.eqName;
+        equipmentTests[eqName] = {
+          tempMethod: eqRow.querySelector('.eq-temp-method').value,
+          tempVal: eqRow.querySelector('.eq-temp-val').value,
+          ultraMethod: eqRow.querySelector('.eq-ultra-method').value,
+          ultrasound: eqRow.querySelector('.eq-ultrasound').value,
+          tevMethod: eqRow.querySelector('.eq-tev-method').value,
+          tev: eqRow.querySelector('.eq-tev').value,
+          status: eqRow.querySelector('.eq-status-badge').innerText
+        };
+      });
+
+      return {
+        substation: mainRow.querySelector('.col-substation').value,
+        district: mainRow.querySelector('.col-district').value,
+        equipments: getSelectedValues(mainRow, '.eq-checkbox'),
+        equipmentTests: equipmentTests,
+        overallStatus: mainRow.querySelector('.col-overall-badge').innerText,
+        findings: detailRow ? detailRow.querySelector('.col-findings').value : '',
+        outcome: detailRow ? detailRow.querySelector('.col-outcome').value : '',
+        engineers: detailRow ? getSelectedValues(detailRow, '.eng-checkbox') : [],
+        contractor: detailRow ? detailRow.querySelector('.col-contractor').value : '',
+        date: detailRow ? detailRow.querySelector('.col-date').value : '',
+        image: mainRow.dataset.image || '',
+        updatedAt: new Date().toLocaleString()
+      };
+    }
+
+    function saveState() {
+      const state = {};
+      MONTHS.forEach(month => {
+        const tbody = document.querySelector(`#table-${month} tbody`);
+        if (!tbody) return;
+        state[month] = [];
+        for (let i = 0; i < tbody.rows.length; i += 2) {
+          const mainRow = tbody.rows[i];
+          state[month].push(extractMainRowData(mainRow));
+        }
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function toggleRowDetails(btn) {
+      const mainRow = btn.closest('tr');
+      const detailRow = mainRow.nextElementSibling;
+      detailRow.classList.toggle('open');
+      btn.innerText = detailRow.classList.contains('open') ? '▲ Less' : '▼ Details';
+    }
+
+    function initApp() {
+      loadRegions();
+      loadEngineers();
+      loadWorkOrders();
+      refreshAllRegionDropdowns();
+
+      appState = loadState() || {};
+      const monthSelect = document.getElementById("monthSelect");
+      const panelsContainer = document.getElementById("panelsContainer");
+
+      MONTHS.forEach((month, index) => {
+        const opt = document.createElement("option");
+        opt.value = month; opt.textContent = month;
+        monthSelect.appendChild(opt);
+
+        const panel = document.createElement("div");
+        panel.className = `month-panel ${index === 0 ? "active" : ""}`;
+        panel.id = `panel-${month}`;
+
+        panel.innerHTML = `
+          <div class="panel-header">
+            <h2>${month} Diagnostic Entries</h2>
+            <button class="btn btn-secondary" onclick="exportMonthToCSV('${month}')"><i data-lucide="download"></i> Export ${month}</button>
+          </div>
+
+          <div class="table-responsive">
+            <table id="table-${month}">
+              <thead>
+                <tr>
+                  <th style="width: 40px;">No.</th>
+                  <th style="width: 140px;">District / Region</th>
+                  <th style="width: 160px;">Substation</th>
+                  <th style="width: 180px;">Target Equipment</th>
+                  <th>Equipment Specific Diagnostics & Tests</th>
+                  <th style="width: 120px;">Overall Status</th>
+                  <th style="width: 80px;">Details</th>
+                  <th style="width: 50px;">Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div style="margin-top: 14px;">
+            <button class="btn btn-success" onclick="addRow('${month}')"><i data-lucide="plus"></i> Add Substation Entry</button>
+          </div>
+        `;
+        panelsContainer.appendChild(panel);
+
+        const monthData = appState[month];
+        if (monthData && monthData.length > 0) {
+          monthData.forEach(data => addRow(month, data));
+        } else {
+          addRow(month);
+        }
+      });
+
+      panelsContainer.addEventListener('input', () => { saveState(); syncWorkOrders(); });
+      updateHeroStats();
+      lucide.createIcons();
+    }
+
+    function switchMonth(selectedMonth) {
+      MONTHS.forEach(m => document.getElementById(`panel-${m}`).classList.remove("active"));
+      document.getElementById(`panel-${selectedMonth}`).classList.add("active");
+      document.getElementById("monthSelect").value = selectedMonth;
+    }
+
+    function navigateMonth(direction) {
+      const select = document.getElementById("monthSelect");
+      let idx = MONTHS.indexOf(select.value) + direction;
+      if (idx < 0) idx = MONTHS.length - 1;
+      if (idx >= MONTHS.length) idx = 0;
+      switchMonth(MONTHS[idx]);
+    }
+
+    function renumberRows(month) {
+      const tbody = document.querySelector(`#table-${month} tbody`);
+      let count = 1;
+      for (let i = 0; i < tbody.rows.length; i += 2) {
+        tbody.rows[i].cells[0].innerText = count++;
+      }
+    }
+
+    function addRow(month, data = {}) {
+      const tbody = document.querySelector(`#table-${month} tbody`);
+      const mainRow = tbody.insertRow();
+      const detailRow = tbody.insertRow();
+      
+      mainRow.className = "main-log-row";
+      detailRow.className = "detail-row";
+      mainRow.dataset.image = data.image || '';
+
+      const selectedEquipments = data.equipments || ['Transformer'];
+      const selectedEngineers = data.engineers || [];
+
+      mainRow.innerHTML = `
+        <td style="font-weight:600; color:var(--text-muted);"></td>
+        <td>${renderRegionSelectHTML(data.district)}</td>
+        <td><input type="text" class="col-substation" placeholder="e.g. PMU Substation A" value="${data.substation || ''}"></td>
+        <td>${renderEquipmentMultiSelectHTML(selectedEquipments)}</td>
+        <td><div class="equipment-tests-container"></div></td>
+        <td><span class="status-badge col-overall-badge status-normal">${data.overallStatus || 'Pass (Normal)'}</span></td>
+        <td><button class="btn-expand" onclick="toggleRowDetails(this)">▼ Details</button></td>
+        <td><button class="btn btn-danger" style="padding: 4px 8px;" onclick="deleteRow(this, '${month}')">✕</button></td>
+      `;
+
+      detailRow.innerHTML = `
+        <td colspan="8">
+          <div class="detail-container">
+            <div class="detail-block">
+              <label>Findings & Observations</label>
+              <textarea class="col-findings" placeholder="Enter observations...">${data.findings || ''}</textarea>
+            </div>
+            <div class="detail-block">
+              <label>Outcome / Action Plan</label>
+              <textarea class="col-outcome" placeholder="Enter action plan...">${data.outcome || ''}</textarea>
+            </div>
+            <div class="detail-block">
+              <label>Engineers & Metadata</label>
+              <div class="col-engineer-container">${renderEngineerMultiSelectHTML(selectedEngineers)}</div>
+              <input type="text" class="col-contractor" placeholder="Contractor Name" value="${data.contractor || ''}" style="margin-top:6px;">
+              <div style="display:flex; gap:6px; margin-top:6px; align-items:center;">
+                <input type="date" class="col-date" value="${data.date || ''}">
+                <button class="btn btn-secondary" style="font-size:0.75rem; padding:4px 8px;" onclick="this.nextElementSibling.click()"><i data-lucide="camera" style="width:14px;height:14px;"></i> Photo</button>
+                <input type="file" accept="image/*" style="display:none;" onchange="handleImageUpload(this)">
+                <button class="btn btn-secondary btn-view-img" style="font-size:0.75rem; padding:4px 8px; ${data.image ? '' : 'display:none;'}" onclick="openModal(this.closest('tr').previousElementSibling.dataset.image)">View</button>
+              </div>
+              <div style="font-size:0.68rem; color:#64748b; margin-top:4px;">Audit: ${data.updatedAt || 'New Record'}</div>
+            </div>
+          </div>
+        </td>
+      `;
+
+      renderEquipmentDiagnosticCards(mainRow, selectedEquipments, data.equipmentTests || {});
+      evaluateOverallSubstationStatus(mainRow);
+      renumberRows(month);
+      saveState();
+      lucide.createIcons();
+    }
+
+    function handleImageUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const detailRow = input.closest('tr');
+        const mainRow = detailRow.previousElementSibling;
+        mainRow.dataset.image = e.target.result;
+        detailRow.querySelector('.btn-view-img').style.display = 'inline-flex';
+        saveState();
+        showToast("Photo uploaded successfully!");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function openModal(src) {
+      if (!src) return;
+      document.getElementById("modalImage").src = src;
+      document.getElementById("imageModal").classList.add("active");
+    }
+
+    function closeModal() { document.getElementById("imageModal").classList.remove("active"); }
+
+    function deleteRow(btn, month) {
+      const mainRow = btn.closest("tr");
+      const detailRow = mainRow.nextElementSibling;
+      lastDeletedRowData = { month: month, data: extractMainRowData(mainRow) };
+
+      mainRow.remove();
+      detailRow.remove();
+      renumberRows(month);
+      saveState();
+      syncWorkOrders();
+      updateHeroStats();
+
+      showToast("Entry deleted.", () => {
+        if (lastDeletedRowData) {
+          addRow(lastDeletedRowData.month, lastDeletedRowData.data);
+          showToast("Entry restored!");
+          lastDeletedRowData = null;
+          updateHeroStats();
+        }
+      });
+    }
+
+    /* Live Search & Filter Bar Handler */
+    function applyFiltersAndSearch() {
+      const query = document.getElementById("globalSearchInput").value.toLowerCase();
+      const districtFilter = document.getElementById("districtFilterSelect").value;
+      const severityFilter = document.getElementById("severityFilterSelect").value;
+
+      MONTHS.forEach(month => {
+        const tbody = document.querySelector(`#table-${month} tbody`);
+        if (!tbody) return;
+        for (let i = 0; i < tbody.rows.length; i += 2) {
+          const mainRow = tbody.rows[i];
+          const detailRow = mainRow.nextElementSibling;
+          const data = extractMainRowData(mainRow);
+
+          const matchesQuery = !query || 
+            data.substation.toLowerCase().includes(query) || 
+            data.contractor.toLowerCase().includes(query) || 
+            data.findings.toLowerCase().includes(query);
+
+          const matchesDistrict = (districtFilter === 'ALL') || (data.district === districtFilter);
+          const matchesSeverity = (severityFilter === 'ALL') || (data.overallStatus === severityFilter);
+
+          if (matchesQuery && matchesDistrict && matchesSeverity) {
+            mainRow.style.display = 'table-row';
+          } else {
+            mainRow.style.display = 'none';
+            detailRow.style.display = 'none';
+          }
+        }
+      });
+    }
+
+    function renderConditionOverview() {
+      saveState();
+      const state = loadState() || {};
+      const tbody = document.querySelector("#condition-overview-table tbody");
+      tbody.innerHTML = "";
+      let counts = { "Pass (Normal)": 0, "Needs Inspection": 0, "Critical Fault": 0 };
+
+      MONTHS.forEach(month => {
+        (state[month] || []).forEach(item => {
+          if (!item.substation) return;
+          Object.keys(item.equipmentTests || {}).forEach(eqName => {
+            const eqData = item.equipmentTests[eqName];
+            const eqStatus = eqData.status || 'Pass (Normal)';
+            if (counts[eqStatus] !== undefined) counts[eqStatus]++;
+
+            const tr = document.createElement("tr");
+            let badgeClass = eqStatus === 'Pass (Normal)' ? 'status-normal' : eqStatus === 'Needs Inspection' ? 'status-warning' : 'status-danger';
+
+            const tempDisplay = eqData.tempMethod === 'NA' ? 'N/A' : `${eqData.tempVal ? eqData.tempVal + '°C' : 'N/A'}`;
+            const ultraDisplay = eqData.ultraMethod === 'NA' ? 'N/A' : (eqData.ultrasound ? eqData.ultrasound + ' dBµV' : 'N/A');
+            const tevDisplay = eqData.tevMethod === 'NA' ? 'N/A' : (eqData.tev ? eqData.tev + ' dBmV' : 'N/A');
+
+            tr.innerHTML = `
+              <td><strong>${month}</strong></td>
+              <td>${item.district || 'Unassigned'}</td>
+              <td>${item.substation || 'N/A'}</td>
+              <td><strong>${eqName}</strong></td>
+              <td><span class="status-badge ${badgeClass}">${eqStatus}</span></td>
+              <td>${tempDisplay}</td>
+              <td>${ultraDisplay}</td>
+              <td>${tevDisplay}</td>
+              <td>
+                <button class="btn btn-secondary" style="padding:2px 6px; font-size:0.72rem;" onclick="openAssetTrendChart('${item.substation}', '${eqName}')">📈 Trend</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        });
+      });
+
+      document.getElementById("count-normal").innerText = counts["Pass (Normal)"];
+      document.getElementById("count-warning").innerText = counts["Needs Inspection"];
+      document.getElementById("count-danger").innerText = counts["Critical Fault"];
+    }
+
+    function renderTasksOverview() {
+      syncWorkOrders();
+      const tbody = document.querySelector("#tasks-table tbody");
+      tbody.innerHTML = "";
+
+      Object.keys(workOrders).forEach(key => {
+        const wo = workOrders[key];
+        const tr = document.createElement("tr");
+
+        let statusClass = wo.status === 'Open' ? 'wo-open' : wo.status === 'Scheduled' ? 'wo-scheduled' : 'wo-completed';
+
+        tr.innerHTML = `
+          <td><strong>${wo.substation} (${wo.equipment})</strong></td>
+          <td>${wo.district}</td>
+          <td>${wo.month}</td>
+          <td><span class="status-badge ${wo.statusLevel === 'Critical Fault' ? 'status-danger' : 'status-warning'}">${wo.statusLevel}</span></td>
+          <td><strong style="color:#ef4444;">${wo.dueDate}</strong></td>
+          <td>
+            <select class="status-badge ${statusClass}" onchange="updateWOStatus('${key}', this.value)">
+              <option value="Open" ${wo.status === 'Open' ? 'selected' : ''}>Open</option>
+              <option value="Scheduled" ${wo.status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+              <option value="Completed" ${wo.status === 'Completed' ? 'selected' : ''}>Completed</option>
+            </select>
+          </td>
+          <td>${wo.engineers.join(', ') || 'Unassigned'}</td>
+          <td style="font-size:0.7rem; color:#64748b;">${wo.updatedAt}</td>
+          <td><button class="btn btn-danger" style="padding: 4px 8px;" onclick="deleteWorkOrder('${key}')">✕</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteWorkOrder(key) {
+      if (workOrders[key]) {
+        lastDeletedTaskData = { key: key, data: workOrders[key] };
+        delete workOrders[key];
+        saveWorkOrders();
+        renderTasksOverview();
+        updateHeroStats();
+
+        showToast("Workorder deleted.", () => {
+          if (lastDeletedTaskData) {
+            workOrders[lastDeletedTaskData.key] = lastDeletedTaskData.data;
+            saveWorkOrders();
+            renderTasksOverview();
+            updateHeroStats();
+            showToast("Workorder restored!");
+            lastDeletedTaskData = null;
+          }
+        });
+      }
+    }
+
+    function updateWOStatus(key, status) {
+      if (workOrders[key]) {
+        workOrders[key].status = status;
+        workOrders[key].updatedAt = new Date().toLocaleString();
+        saveWorkOrders();
+        renderTasksOverview();
+        showToast("Workorder status updated.");
+      }
+    }
+
+    function openAssetTrendChart(substation, equipment) {
+      const state = loadState() || {};
+      const ultrasoundData = [];
+      const tevData = [];
+      const labels = [];
+
+      MONTHS.forEach(m => {
+        (state[m] || []).forEach(item => {
+          if (item.substation === substation && item.equipmentTests && item.equipmentTests[equipment]) {
+            labels.push(m);
+            const eq = item.equipmentTests[equipment];
+            ultrasoundData.push(parseFloat(eq.ultrasound) || 0);
+            tevData.push(parseFloat(eq.tev) || 0);
+          }
+        });
+      });
+
+      document.getElementById("trendChartTitle").innerText = `Historical Trend: ${substation} (${equipment})`;
+      document.getElementById("trendModal").classList.add("active");
+
+      const ctx = document.getElementById('assetTrendChart').getContext('2d');
+      if (trendChartInstance) trendChartInstance.destroy();
+
+      trendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            { label: 'Ultrasonic (dBµV)', data: ultrasoundData, borderColor: '#2563eb', tension: 0.2, fill: false },
+            { label: 'TEV (dBmV)', data: tevData, borderColor: '#f59e0b', tension: 0.2, fill: false }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+
+    function closeTrendModal() { document.getElementById("trendModal").classList.remove("active"); }
+
+    /* Backup JSON Export & Import */
+    function exportBackupJSON() {
+      const backupData = { appState: loadState(), workOrders: workOrders, engineers: engineerList, regions: regionList };
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `TNB_Diagnostic_Backup_${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      showToast("Data backup file generated.");
+    }
+
+    function importBackupJSON() { document.getElementById("jsonInputFile").click(); }
+
+    function handleJSONImport(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed.appState) localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed.appState));
+          if (parsed.workOrders) localStorage.setItem(TASK_KEY, JSON.stringify(parsed.workOrders));
+          if (parsed.engineers) localStorage.setItem(ENGINE_KEY, JSON.stringify(parsed.engineers));
+          if (parsed.regions) localStorage.setItem(REGION_KEY, JSON.stringify(parsed.regions));
+          location.reload();
+        } catch (err) {
+          showToast("Invalid JSON Backup File!");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    /* PDF Executive Summary Report Generator */
+    function generatePDFReport() {
+      const state = loadState() || {};
+      document.getElementById("pdf-generated-date").innerText = `Generated on: ${new Date().toLocaleString()}`;
+      
+      let criticals = 0, warnings = 0, normals = 0;
+      const pdfTableBody = document.querySelector("#pdf-fault-table tbody");
+      pdfTableBody.innerHTML = "";
+
+      MONTHS.forEach(m => {
+        (state[m] || []).forEach(item => {
+          Object.keys(item.equipmentTests || {}).forEach(eq => {
+            const eqData = item.equipmentTests[eq];
+            if (eqData.status === 'Critical Fault') criticals++;
+            else if (eqData.status === 'Needs Inspection') warnings++;
+            else normals++;
+
+            if (eqData.status !== 'Pass (Normal)') {
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+                <td>${m}</td>
+                <td>${item.substation}</td>
+                <td>${eq}</td>
+                <td><strong>${eqData.status}</strong></td>
+                <td>IR: ${eqData.tempVal || 'N/A'}°C, Ultra: ${eqData.ultrasound || 'N/A'}dBµV, TEV: ${eqData.tev || 'N/A'}dBmV</td>
+              `;
+              pdfTableBody.appendChild(tr);
+            }
+          });
+        });
+      });
+
+      document.getElementById("pdf-metrics-container").innerHTML = `
+        <div style="padding:10px; background:#d1fae5; flex:1;"><strong>Pass:</strong> ${normals}</div>
+        <div style="padding:10px; background:#fef3c7; flex:1;"><strong>Inspection Needed:</strong> ${warnings}</div>
+        <div style="padding:10px; background:#fee2e2; flex:1;"><strong>Critical Faults:</strong> ${criticals}</div>
+      `;
+
+      const element = document.getElementById('pdf-report-template');
+      element.style.display = 'block';
+      
+      html2pdf().from(element).save(`TNB_Executive_Health_Report_${new Date().toISOString().split('T')[0]}.pdf`).then(() => {
+        element.style.display = 'none';
+        showToast("Executive PDF Summary downloaded.");
+      });
+    }
+
+    function downloadCSV(csvContent, fileName) {
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function exportMonthToCSV(month) {
+      const headers = ["Item No.", "District / Region", "Substation", "Equipment Target", "Equipment Status", "Overall Substation Status", "Temp Method", "Temp (°C)", "Ultrasonic Method", "Ultrasonic (dBµV)", "TEV Method", "TEV (dBmV)", "Findings", "Outcome", "Engineers", "Contractor", "Date"];
+      const tbody = document.querySelector(`#table-${month} tbody`);
+      let rows = [];
+
+      for (let i = 0; i < tbody.rows.length; i += 2) {
+        const mainRow = tbody.rows[i];
+        const rowData = extractMainRowData(mainRow);
+        
+        Object.keys(rowData.equipmentTests).forEach((eqName, idx) => {
+          const eqTest = rowData.equipmentTests[eqName];
+          rows.push([
+            (i / 2) + 1,
+            rowData.district,
+            rowData.substation,
+            eqName,
+            eqTest.status,
+            rowData.overallStatus,
+            eqTest.tempMethod,
+            eqTest.tempVal,
+            eqTest.ultraMethod,
+            eqTest.ultrasound,
+            eqTest.tevMethod,
+            eqTest.tev,
+            rowData.findings,
+            rowData.outcome,
+            rowData.engineers.join("; "),
+            rowData.contractor,
+            rowData.date
+          ]);
+        });
+      }
+
+      const csv = [headers.join(",")].concat(rows.map(r => r.map(v => `"${(v || '').toString().replace(/"/g, '""')}"`).join(","))).join("\n");
+      downloadCSV("\uFEFF" + csv, `TNB_Diagnostic_${month}.csv`);
+    }
+
+    function exportAllToCSV() { MONTHS.forEach(m => exportMonthToCSV(m)); }
+
+    window.onload = initApp;
+  </script>
+</body>
+</html>
